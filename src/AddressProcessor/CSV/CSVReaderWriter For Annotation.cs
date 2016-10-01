@@ -8,9 +8,15 @@ namespace AddressProcessing.CSV
 
         Please leave the rest of this file as it is so we can discuss your concerns during the next stage of the interview process.
         
-        *)
-        *)
-        *)
+        *) Class + file naming - olso to reflect.
+        *) Aim for single responsability classes.
+        *) Implementing something thinking we'll need it later? It's called Speculative Generality
+           This class is not used. Nor is it tested. Maybe go with codding the minimum like in TDD.
+        *) Class state and usage contract - aaand bugs it can cause.
+        *) Api design.
+        *) Levels of abstraction and code readability.
+        *) Re-inventing the wheel.
+        *) Buffers and performance.
     */
 
     public class CSVReaderWriterForAnnotation
