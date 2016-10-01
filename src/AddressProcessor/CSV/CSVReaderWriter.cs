@@ -6,126 +6,75 @@ namespace AddressProcessing.CSV
     /*
         2) Refactor this class into clean, elegant, rock-solid & well performing code, without over-engineering.
            Assume this code is in production and backwards compatibility must be maintained.
+
+        Assumptions:
+        - is this application assuming input is always 2 columns CSV data?
+        - interface and all public methods maintained even though not all are used
+        - is this a refactoring or accounting for existing bugs? - I assumed not and 'refactored', not redesigned
+        - there could have been 2 classes that handle reading/writing wrapped in here, but since the class is small
+         it's fine for now.
+        - I've added IDisposable, even though that's adding to the public interface this class has, it's 
+        still backwards compatible.
     */
 
-    public class CSVReaderWriter
+    public class CSVReaderWriter : IDisposable
     {
-        private StreamReader _readerStream = null;
-        private StreamWriter _writerStream = null;
-
         [Flags]
         public enum Mode { Read = 1, Write = 2 };
 
+        private const String separator = "\t";
+
+        private StreamReader _readerStream;
+        private StreamWriter _writerStream;
+
         public void Open(string fileName, Mode mode)
         {
-            if (mode == Mode.Read)
+            switch (mode)
             {
-                _readerStream = File.OpenText(fileName);
-            }
-            else if (mode == Mode.Write)
-            {
-                FileInfo fileInfo = new FileInfo(fileName);
-                _writerStream = fileInfo.CreateText();
-            }
-            else
-            {
-                throw new Exception("Unknown file mode for " + fileName);
+                case Mode.Read:
+                    _readerStream = File.OpenText(fileName);
+                    break;
+                case Mode.Write:
+                    FileInfo fileInfo = new FileInfo(fileName);
+                    _writerStream = fileInfo.CreateText();
+                    break;
+                default:
+                    throw new Exception("Unknown file mode for " + fileName);
             }
         }
 
         public void Write(params string[] columns)
         {
-            WriteLine(string.Join("\t", columns));
+            _writerStream.WriteLine(string.Join(separator, columns));
         }
 
         public bool Read(string column1, string column2)
         {
-            const int FIRST_COLUMN = 0;
-            const int SECOND_COLUMN = 1;
-
-            string line;
-            string[] columns;
-
-            char[] separator = { '\t' };
-
-            line = ReadLine();
-            columns = line.Split(separator);
-
-            if (columns.Length == 0)
-            {
-                column1 = null;
-                column2 = null;
-
-                return false;
-            }
-            else
-            {
-                column1 = columns[FIRST_COLUMN];
-                column2 = columns[SECOND_COLUMN];
-
-                return true;
-            }
+            return Read(out column1, out column2);
         }
 
         public bool Read(out string column1, out string column2)
         {
-            const int FIRST_COLUMN = 0;
-            const int SECOND_COLUMN = 1;
+            var line = _readerStream.ReadLine();
 
-            string line;
-            string[] columns;
+            var columns = line?.Split(separator.ToCharArray());
 
-            char[] separator = { '\t' };
+            column1 = columns?[0];
+            column2 = columns?[1];
 
-            line = ReadLine();
-
-            if (line == null)
-            {
-                column1 = null;
-                column2 = null;
-
-                return false;
-            }
-
-            columns = line.Split(separator);
-
-            if (columns.Length == 0)
-            {
-                column1 = null;
-                column2 = null;
-
-                return false;
-            } 
-            else
-            {
-                column1 = columns[FIRST_COLUMN];
-                column2 = columns[SECOND_COLUMN];
-
-                return true;
-            }
-        }
-
-        private void WriteLine(string line)
-        {
-            _writerStream.WriteLine(line);
-        }
-
-        private string ReadLine()
-        {
-            return _readerStream.ReadLine();
+            return columns != null && columns.Length != 0;
         }
 
         public void Close()
         {
-            if (_writerStream != null)
-            {
-                _writerStream.Close();
-            }
+            _writerStream?.Close(); _writerStream = null;
+            _readerStream?.Close(); _readerStream = null;
+        }
 
-            if (_readerStream != null)
-            {
-                _readerStream.Close();
-            }
+        public void Dispose()
+        {
+            Close();
+            GC.SuppressFinalize(this);
         }
     }
 }
