@@ -35,18 +35,7 @@ namespace AddressProcessing.CSV
 
         public void Write(params string[] columns)
         {
-            string outPut = "";
-
-            for (int i = 0; i < columns.Length; i++)
-            {
-                outPut += columns[i];
-                if ((columns.Length - 1) != i)
-                {
-                    outPut += "\t";
-                }
-            }
-
-            WriteLine(outPut);
+            WriteLine(string.Join("\t", columns));
         }
 
         public bool Read(string column1, string column2)
