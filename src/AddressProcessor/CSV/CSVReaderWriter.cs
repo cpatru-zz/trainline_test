@@ -7,12 +7,12 @@ namespace AddressProcessing.CSV
         2) Refactor this class into clean, elegant, rock-solid & well performing code, without over-engineering.
            Assume this code is in production and backwards compatibility must be maintained.
 
-        Assumptions:
+        Assumptions and questions:
         - is this application assuming input is always 2 columns CSV data?
-        - interface and all public methods maintained even though not all are used
-        - is this a refactoring or accounting for existing bugs? - I assumed not and 'refactored', not redesigned
-        - there could have been 2 classes that handle reading/writing wrapped in here, but since the class is small
-         it's fine for now.
+        - maintained interface and all public methods even though not all are used
+        - is this a refactoring or accounting for existing bugs? - I assumed not, so I 'refactored', not redesigned
+        - Normally I'd have 2 classes that handle reading/writing wrapped in here, but since the class is small
+         it's fine for now. Also the read/write would be more generic than 2 columns csv.
         - I've added IDisposable, even though that's adding to the public interface this class has, it's 
         still backwards compatible.
     */
@@ -74,7 +74,6 @@ namespace AddressProcessing.CSV
         public void Dispose()
         {
             Close();
-            GC.SuppressFinalize(this);
         }
     }
 }
